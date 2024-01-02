@@ -8,6 +8,8 @@ import (
 	"time"
 )
 
+const MiningDifficulty = 3
+
 func main() {
 	blockChain := NewBlockchain()
 	blockChain.Print()
@@ -54,7 +56,6 @@ func (b *Block) Print() {
 
 func (b *Block) Hash() [32]byte {
 	m, _ := json.Marshal(b)
-	fmt.Println(string(m))
 	return sha256.Sum256(m)
 }
 
@@ -104,6 +105,36 @@ func (bc *Blockchain) LastBlock() *Block {
 func (bc *Blockchain) AddTransaction(sender, recipient string, value float32) {
 	t := NewTransaction(sender, recipient, value)
 	bc.transactionPool = append(bc.transactionPool, t)
+}
+
+func (bc *Blockchain) CopyTransactionPool() []*Transaction {
+	transactions := make([]*Transaction, 0)
+	for _, t := range bc.transactionPool {
+		transactions = append(transactions, t)
+	}
+	return transactions
+}
+
+func (bc *Blockchain) ValidProof(difficulty, nonce int, previousHash [32]byte, transactions []*Transaction) bool {
+	zeros := strings.Repeat("0", difficulty)
+	guessBlock := Block{
+		nonce:        nonce,
+		previousHash: previousHash,
+		timpestamp:   0,
+		transactions: transactions,
+	}
+	guessHashStr := fmt.Sprintf("%x", guessBlock.Hash())
+	return guessHashStr[:difficulty] == zeros
+}
+
+func (bc *Blockchain) ProofOfWork() int {
+	transactions := bc.CopyTransactionPool()
+	previousHash := bc.LastBlock().Hash()
+	nonce := 0
+	for !bc.ValidProof(MiningDifficulty, nonce, previousHash, transactions) {
+		nonce += 1
+	}
+	return nonce
 }
 
 type Transaction struct {
