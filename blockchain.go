@@ -6,9 +6,9 @@ import (
 )
 
 func main() {
-	fmt.Println("test")
-	b := NewBlock(0, "init hash")
-	b.Print()
+	blockChain := NewBlockchain()
+	blockChain.Print()
+
 }
 
 type Block struct {
@@ -39,4 +39,21 @@ type Blockchain struct {
 	chain           []*Block
 }
 
-func (bc *Blockchain) CreateBlock(nonce int, previousHash string)
+func NewBlockchain() *Blockchain {
+	bc := new(Blockchain)
+	bc.CreateBlock(0, "init hash")
+	return bc
+}
+
+func (bc *Blockchain) Print() {
+	for i, block := range bc.chain {
+		fmt.Printf("chain %d\n", i)
+		block.Print()
+	}
+}
+
+func (bc *Blockchain) CreateBlock(nonce int, previousHash string) *Block {
+	b := NewBlock(nonce, previousHash)
+	bc.chain = append(bc.chain, b)
+	return b
+}
