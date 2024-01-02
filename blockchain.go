@@ -9,10 +9,17 @@ import (
 )
 
 func main() {
-	//blockChain := NewBlockchain()
-	//blockChain.CreateBlock(5, "hash 1")
-	//blockChain.CreateBlock(3, "hash 2")
-	//blockChain.Print()
+	blockChain := NewBlockchain()
+	blockChain.Print()
+
+	previousHash := blockChain.LastBlock().Hash()
+	blockChain.CreateBlock(5, previousHash)
+	blockChain.Print()
+
+	previousHash = blockChain.LastBlock().Hash()
+	blockChain.CreateBlock(3, previousHash)
+	blockChain.Print()
+
 	//block := NewBlock(0, "init hash")
 	//hash := block.Hash()
 	//fmt.Printf("%x", hash)
@@ -85,4 +92,8 @@ func (bc *Blockchain) CreateBlock(nonce int, previousHash [32]byte) *Block {
 	b := NewBlock(nonce, previousHash)
 	bc.chain = append(bc.chain, b)
 	return b
+}
+
+func (bc *Blockchain) LastBlock() *Block {
+	return bc.chain[len(bc.chain)-1]
 }
