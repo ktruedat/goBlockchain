@@ -13,20 +13,20 @@ func main() {
 	//blockChain.CreateBlock(5, "hash 1")
 	//blockChain.CreateBlock(3, "hash 2")
 	//blockChain.Print()
-	block := NewBlock(0, "init hash")
-	hash := block.Hash()
-	fmt.Printf("%x", hash)
+	//block := NewBlock(0, "init hash")
+	//hash := block.Hash()
+	//fmt.Printf("%x", hash)
 
 }
 
 type Block struct {
 	nonce        int
-	previousHash string
+	previousHash [32]byte
 	timpestamp   int64
 	transactions []string
 }
 
-func NewBlock(nonce int, previousHash string) *Block {
+func NewBlock(nonce int, previousHash [32]byte) *Block {
 	return &Block{
 		nonce:        nonce,
 		previousHash: previousHash,
@@ -37,7 +37,7 @@ func NewBlock(nonce int, previousHash string) *Block {
 
 func (b *Block) Print() {
 	fmt.Printf("timestamp 		%d\n", b.timpestamp)
-	fmt.Printf("previousHash 		%s\n", b.previousHash)
+	fmt.Printf("previousHash 		%x\n", b.previousHash)
 	fmt.Printf("nonce 			%d\n", b.nonce)
 	fmt.Printf("transactions 		%s\n", b.transactions)
 }
@@ -52,7 +52,7 @@ func (b *Block) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		Timestamp    int64    `json:"timestamp"`
 		Nonce        int      `json:"nonce"`
-		PreviousHash string   `json:"previousHash"`
+		PreviousHash [32]byte `json:"previousHash"`
 		Transactions []string `json:"transactions"`
 	}{Timestamp: b.timpestamp,
 		Nonce:        b.nonce,
@@ -66,8 +66,9 @@ type Blockchain struct {
 }
 
 func NewBlockchain() *Blockchain {
+	b := &Block{}
 	bc := new(Blockchain)
-	bc.CreateBlock(0, "init hash")
+	bc.CreateBlock(0, b.Hash())
 	return bc
 }
 
@@ -80,7 +81,7 @@ func (bc *Blockchain) Print() {
 	fmt.Printf("%s\n", strings.Repeat("*", 25))
 }
 
-func (bc *Blockchain) CreateBlock(nonce int, previousHash string) *Block {
+func (bc *Blockchain) CreateBlock(nonce int, previousHash [32]byte) *Block {
 	b := NewBlock(nonce, previousHash)
 	bc.chain = append(bc.chain, b)
 	return b
