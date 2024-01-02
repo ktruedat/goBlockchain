@@ -1,83 +1,18 @@
 package main
 
 import (
-	"crypto/sha256"
-	"encoding/json"
 	"fmt"
+	"github.com/ktruedat/goBlockchain/types"
 	"strings"
-	"time"
 )
 
-const MiningDifficulty = 3
-
-func main() {
-	blockChain := NewBlockchain()
-	blockChain.Print()
-
-	previousHash := blockChain.LastBlock().Hash()
-	blockChain.CreateBlock(5, previousHash)
-	blockChain.Print()
-
-	previousHash = blockChain.LastBlock().Hash()
-	blockChain.CreateBlock(3, previousHash)
-	blockChain.Print()
-
-	//block := NewBlock(0, "init hash")
-	//hash := block.Hash()
-	//fmt.Printf("%x", hash)
-
-}
-
-type Block struct {
-	nonce        int
-	previousHash [32]byte
-	timpestamp   int64
-	transactions []*Transaction
-}
-
-func NewBlock(nonce int, previousHash [32]byte, transactions []*Transaction) *Block {
-	return &Block{
-		nonce:        nonce,
-		previousHash: previousHash,
-		timpestamp:   time.Now().UnixNano(),
-		transactions: transactions,
-	}
-}
-
-func (b *Block) Print() {
-	fmt.Printf("timestamp 		%d\n", b.timpestamp)
-	fmt.Printf("nonce 			%d\n", b.nonce)
-	fmt.Printf("previousHash 	%x\n", b.previousHash)
-	for _, t := range b.transactions {
-		t.Print()
-	}
-
-}
-
-func (b *Block) Hash() [32]byte {
-	m, _ := json.Marshal(b)
-	return sha256.Sum256(m)
-}
-
-func (b *Block) MarshalJSON() ([]byte, error) {
-	return json.Marshal(struct {
-		Timestamp    int64          `json:"timestamp"`
-		Nonce        int            `json:"nonce"`
-		PreviousHash [32]byte       `json:"previousHash"`
-		Transactions []*Transaction `json:"transactions"`
-	}{Timestamp: b.timpestamp,
-		Nonce:        b.nonce,
-		PreviousHash: b.previousHash,
-		Transactions: b.transactions})
-}
-
 type Blockchain struct {
-	transactionPool []*Transaction
-	chain           []*Block
+	transactionPool []*types.Transaction
+	chain           []*types.Block
 }
 
 func NewBlockchain() *Blockchain {
-	b := &Block{}
+	b := &types.Block{}
 	bc := new(Blockchain)
 	bc.CreateBlock(0, b.Hash())
 	return bc
@@ -92,78 +27,25 @@ func (bc *Blockchain) Print() {
 	fmt.Printf("%s\n", strings.Repeat("*", 25))
 }
 
-func (bc *Blockchain) CreateBlock(nonce int, previousHash [32]byte) *Block {
-	b := NewBlock(nonce, previousHash, bc.transactionPool)
+func (bc *Blockchain) CreateBlock(nonce int, previousHash [32]byte) *types.Block {
+	b := types.NewBlock(nonce, previousHash, bc.transactionPool)
 	bc.chain = append(bc.chain, b)
 	return b
 }
 
-func (bc *Blockchain) LastBlock() *Block {
+func (bc *Blockchain) LastBlock() *types.Block {
 	return bc.chain[len(bc.chain)-1]
 }
 
 func (bc *Blockchain) AddTransaction(sender, recipient string, value float32) {
-	t := NewTransaction(sender, recipient, value)
+	t := types.NewTransaction(sender, recipient, value)
 	bc.transactionPool = append(bc.transactionPool, t)
 }
 
-func (bc *Blockchain) CopyTransactionPool() []*Transaction {
-	transactions := make([]*Transaction, 0)
+func (bc *Blockchain) CopyTransactionPool() []*types.Transaction {
+	transactions := make([]*types.Transaction, 0)
 	for _, t := range bc.transactionPool {
 		transactions = append(transactions, t)
 	}
 	return transactions
-}
-
-func (bc *Blockchain) ValidProof(difficulty, nonce int, previousHash [32]byte, transactions []*Transaction) bool {
-	zeros := strings.Repeat("0", difficulty)
-	guessBlock := Block{
-		nonce:        nonce,
-		previousHash: previousHash,
-		timpestamp:   0,
-		transactions: transactions,
-	}
-	guessHashStr := fmt.Sprintf("%x", guessBlock.Hash())
-	return guessHashStr[:difficulty] == zeros
-}
-
-func (bc *Blockchain) ProofOfWork() int {
-	transactions := bc.CopyTransactionPool()
-	previousHash := bc.LastBlock().Hash()
-	nonce := 0
-	for !bc.ValidProof(MiningDifficulty, nonce, previousHash, transactions) {
-		nonce += 1
-	}
-	return nonce
-}
-
-type Transaction struct {
-	senderBlockchainAddress    string
-	recipientBlockchainAddress string
-	value                      float32
-}
-
-func NewTransaction(sender, recipient string, value float32) *Transaction {
-	return &Transaction{
-		senderBlockchainAddress:    sender,
-		recipientBlockchainAddress: recipient,
-		value:                      value,
-	}
-}
-
-func (t *Transaction) Print() {
-	fmt.Printf("%s\n", strings.Repeat("-", 40))
-	fmt.Printf("sender_blockchain_addrees:		%s\n", t.senderBlockchainAddress)
-	fmt.Printf("recipient_blockchain_addrees:	%s\n", t.recipientBlockchainAddress)
-	fmt.Printf("value:							%.1f\n", t.value)
-}
-
-func (t *Transaction) MarshalJSON() ([]byte, error) {
-	return json.Marshal(struct {
-		SenderBlockchainAddress    string  `json:"senderBlockchainAddress"`
-		RecipientBlockchainAddress string  `json:"recipientBlockchainAddress"`
-		Value                      float32 `json:"value"`
-	}{SenderBlockchainAddress: t.senderBlockchainAddress,
-		RecipientBlockchainAddress: t.recipientBlockchainAddress,
-		Value:                      t.value})
 }
