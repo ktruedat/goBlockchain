@@ -4,19 +4,34 @@ import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
+	"crypto/sha256"
 	"fmt"
 )
 
 type Wallet struct {
-	privateKey *ecdsa.PrivateKey
-	publicKey  *ecdsa.PublicKey
+	privateKey        *ecdsa.PrivateKey
+	publicKey         *ecdsa.PublicKey
+	blockchainAddress string
 }
 
 func NewWallet() *Wallet {
 	w := new(Wallet)
+	// 1. Creating ECDSA private key (32 bytes) and public key (64 bytes)
 	privateKey, _ := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	w.privateKey = privateKey
 	w.publicKey = &w.privateKey.PublicKey
+	// 2. Perform SHA-256 hashing on the public key
+	h2 := sha256.New()
+	h2.Write(w.publicKey.X.Bytes())
+	h2.Write(w.publicKey.Y.Bytes())
+	digest2 := h2.Sum(nil)
+	// 3. Perform RIPEMD-160 hasing on the result of SHA-256 (20 bytes)
+	// 4. Add version byte in front of RIPEMD-160 hash (0x00 for Main Network)
+	// 5. Perform SHA-256 hash on the extended RIPEMD-160 result
+	// 6. Perform SHA-256 hash on the result of the previous SHA-256 hash
+	// 7. Take the first 4 bytes of the second SHA-256 hash for checksum
+	// 8. Add the 4 checksum bytes from 7 at the end of extended RIPEMD-160 hash from 4 (25 bytes)
+	// 9. Convert the result from a byte string into base58
 	return w
 }
 
