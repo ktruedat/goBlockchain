@@ -1,19 +1,13 @@
 package main
 
-import "github.com/ktruedat/goBlockchain/blockchain"
+import (
+	"fmt"
+	"github.com/ktruedat/goBlockchain/wallet"
+)
 
 func main() {
-	addr := "some address"
-	blockChain := blockchain.NewBlockchain(addr)
-	blockChain.Print()
-
-	blockChain.AddTransaction("A", "B", 1.0)
-	blockChain.Mining()
-	blockChain.Print()
-
-	blockChain.AddTransaction("C", "D", 2.0)
-	blockChain.AddTransaction("X", "Y", 3.0)
-	blockChain.Mining()
-	blockChain.Print()
-
+	w := wallet.NewWallet()
+	fmt.Println(w.PrivateKeyStr())
+	fmt.Println()
+	fmt.Println(w.PublicKeyStr())
 }
