@@ -51,3 +51,12 @@ func (bc *Blockchain) CopyTransactionPool() []*types.Transaction {
 	}
 	return transactions
 }
+
+func (bc *Blockchain) CalculateTotalAmount(blockchainAddr string) float32 {
+	var totalAmount float32 = 0.0
+	for _, b := range bc.chain {
+		for _, t := range b.Transactions {
+			if blockchainAddr == t.
+		}
+	}
+}
