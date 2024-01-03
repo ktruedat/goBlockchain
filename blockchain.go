@@ -7,13 +7,15 @@ import (
 )
 
 type Blockchain struct {
-	transactionPool []*types.Transaction
-	chain           []*types.Block
+	transactionPool   []*types.Transaction
+	chain             []*types.Block
+	blockchainAddress string
 }
 
-func NewBlockchain() *Blockchain {
+func NewBlockchain(blockchainAddress string) *Blockchain {
 	b := &types.Block{}
 	bc := new(Blockchain)
+	bc.blockchainAddress = blockchainAddress
 	bc.CreateBlock(0, b.Hash())
 	return bc
 }
