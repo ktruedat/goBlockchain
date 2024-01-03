@@ -1,4 +1,4 @@
-package types
+package blockchain
 
 import (
 	"crypto/sha256"
@@ -11,7 +11,7 @@ type Block struct {
 	nonce        int
 	previousHash [32]byte
 	timpestamp   int64
-	Transactions []*Transaction
+	transactions []*Transaction
 }
 
 func NewBlock(nonce int, previousHash [32]byte, transactions []*Transaction) *Block {
@@ -19,7 +19,7 @@ func NewBlock(nonce int, previousHash [32]byte, transactions []*Transaction) *Bl
 		nonce:        nonce,
 		previousHash: previousHash,
 		timpestamp:   time.Now().UnixNano(),
-		Transactions: transactions,
+		transactions: transactions,
 	}
 }
 
@@ -27,7 +27,7 @@ func (b *Block) Print() {
 	fmt.Printf("timestamp 		%d\n", b.timpestamp)
 	fmt.Printf("nonce: 			%d\n", b.nonce)
 	fmt.Printf("previousHash: 		%x\n", b.previousHash)
-	for _, t := range b.Transactions {
+	for _, t := range b.transactions {
 		t.Print()
 	}
 
@@ -43,9 +43,9 @@ func (b *Block) MarshalJSON() ([]byte, error) {
 		Timestamp    int64          `json:"timestamp"`
 		Nonce        int            `json:"nonce"`
 		PreviousHash [32]byte       `json:"previousHash"`
-		Transactions []*Transaction `json:"Transactions"`
+		Transactions []*Transaction `json:"transactions"`
 	}{Timestamp: b.timpestamp,
 		Nonce:        b.nonce,
 		PreviousHash: b.previousHash,
-		Transactions: b.Transactions})
+		Transactions: b.transactions})
 }

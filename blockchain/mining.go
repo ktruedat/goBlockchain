@@ -1,8 +1,7 @@
-package main
+package blockchain
 
 import (
 	"fmt"
-	"github.com/ktruedat/goBlockchain/types"
 	"log"
 	"strings"
 )
@@ -32,9 +31,9 @@ func (bc *Blockchain) proofOfWork() int {
 	return nonce
 }
 
-func (bc *Blockchain) validProof(difficulty, nonce int, previousHash [32]byte, transactions []*types.Transaction) bool {
+func (bc *Blockchain) validProof(difficulty, nonce int, previousHash [32]byte, transactions []*Transaction) bool {
 	zeros := strings.Repeat("0", difficulty)
-	guessBlock := types.NewBlock(nonce, previousHash, transactions)
+	guessBlock := NewBlock(nonce, previousHash, transactions)
 	guessHashStr := fmt.Sprintf("%x", guessBlock.Hash())
 	return guessHashStr[:difficulty] == zeros
 }

@@ -1,19 +1,18 @@
-package main
+package blockchain
 
 import (
 	"fmt"
-	"github.com/ktruedat/goBlockchain/types"
 	"strings"
 )
 
 type Blockchain struct {
-	transactionPool   []*types.Transaction
-	chain             []*types.Block
+	transactionPool   []*Transaction
+	chain             []*Block
 	blockchainAddress string
 }
 
 func NewBlockchain(blockchainAddress string) *Blockchain {
-	b := &types.Block{}
+	b := &Block{}
 	bc := new(Blockchain)
 	bc.blockchainAddress = blockchainAddress
 	bc.CreateBlock(0, b.Hash())
@@ -29,23 +28,23 @@ func (bc *Blockchain) Print() {
 	fmt.Printf("%s\n", strings.Repeat("*", 25))
 }
 
-func (bc *Blockchain) CreateBlock(nonce int, previousHash [32]byte) *types.Block {
-	b := types.NewBlock(nonce, previousHash, bc.transactionPool)
+func (bc *Blockchain) CreateBlock(nonce int, previousHash [32]byte) *Block {
+	b := NewBlock(nonce, previousHash, bc.transactionPool)
 	bc.chain = append(bc.chain, b)
 	return b
 }
 
-func (bc *Blockchain) LastBlock() *types.Block {
+func (bc *Blockchain) LastBlock() *Block {
 	return bc.chain[len(bc.chain)-1]
 }
 
 func (bc *Blockchain) AddTransaction(sender, recipient string, value float32) {
-	t := types.NewTransaction(sender, recipient, value)
+	t := NewTransaction(sender, recipient, value)
 	bc.transactionPool = append(bc.transactionPool, t)
 }
 
-func (bc *Blockchain) CopyTransactionPool() []*types.Transaction {
-	transactions := make([]*types.Transaction, 0)
+func (bc *Blockchain) CopyTransactionPool() []*Transaction {
+	transactions := make([]*Transaction, 0)
 	for _, t := range bc.transactionPool {
 		transactions = append(transactions, t)
 	}
@@ -55,8 +54,15 @@ func (bc *Blockchain) CopyTransactionPool() []*types.Transaction {
 func (bc *Blockchain) CalculateTotalAmount(blockchainAddr string) float32 {
 	var totalAmount float32 = 0.0
 	for _, b := range bc.chain {
-		for _, t := range b.Transactions {
-			if blockchainAddr == t.
+		for _, t := range b.transactions {
+			value := t.value
+			if blockchainAddr == t.recipientBlockchainAddress {
+				totalAmount += value
+			}
+			if blockchainAddr == t.senderBlockchainAddress {
+				totalAmount -= value
+			}
 		}
 	}
+	return totalAmount
 }
