@@ -14,6 +14,9 @@ type Wallet struct {
 	privateKey        *ecdsa.PrivateKey
 	publicKey         *ecdsa.PublicKey
 	blockchainAddress string
+	NOP               string
+	NEOP              string
+	NEOPP             string
 }
 
 func NewWallet() *Wallet {
