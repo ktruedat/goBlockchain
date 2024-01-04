@@ -48,5 +48,5 @@ type Signature struct {
 }
 
 func (s *Signature) String() string {
-	return fmt.Sprintf("%x%x", s.R, s.S)
+	return fmt.Sprintf("%x%s", s.R, s.S)
 }
