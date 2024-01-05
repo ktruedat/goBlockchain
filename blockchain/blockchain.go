@@ -50,6 +50,9 @@ func (bc *Blockchain) AddTransaction(sender, recipient string, value float32, se
 		return nil
 	}
 	if bc.VerifyTransactionSignature(senderPublicKey, s, t) {
+		if bc.CalculateTotalAmount(sender) < value {
+			return errors.New("failed to send cryptocurrency: not enough balance in wallet")
+		}
 		bc.transactionPool = append(bc.transactionPool, t)
 		return nil
 	}
