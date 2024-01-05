@@ -5,8 +5,7 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/json"
-	"fmt"
-	"math/big"
+	"github.com/ktruedat/goBlockchain/utils"
 )
 
 type Transaction struct {
@@ -21,11 +20,11 @@ func NewTransaction(senderPrivateKey *ecdsa.PrivateKey, senderPublicKey *ecdsa.P
 	return &Transaction{senderPrivateKey: senderPrivateKey, senderPublicKey: senderPublicKey, senderBlockchainAddress: senderBlockchainAddress, recipientBlockchainAddress: recipientBlockchainAddress, value: value}
 }
 
-func (t *Transaction) GenerateSignature() *Signature {
+func (t *Transaction) GenerateSignature() *utils.Signature {
 	m, _ := json.Marshal(t)
 	h := sha256.Sum256(m[:])
 	r, s, _ := ecdsa.Sign(rand.Reader, t.senderPrivateKey, h[:])
-	return &Signature{
+	return &utils.Signature{
 		R: r,
 		S: s,
 	}
@@ -40,13 +39,4 @@ func (t *Transaction) MarshalJSON() ([]byte, error) {
 	}{SenderBlockchainAddress: t.senderBlockchainAddress,
 		RecipientBlockchainAddress: t.recipientBlockchainAddress,
 		Value:                      t.value})
-}
-
-type Signature struct {
-	R *big.Int
-	S *big.Int
-}
-
-func (s *Signature) String() string {
-	return fmt.Sprintf("%x%x", s.R, s.S)
 }
