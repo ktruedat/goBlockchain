@@ -14,14 +14,24 @@ type Blockchain struct {
 	transactionPool   []*Transaction
 	chain             []*Block
 	blockchainAddress string
+	port              uint16
 }
 
-func NewBlockchain(blockchainAddress string) *Blockchain {
-	b := &Block{}
-	bc := new(Blockchain)
+func NewBlockchain(blockchainAddress string, port uint16) *Blockchain {
+	var b Block
+	var bc Blockchain
 	bc.blockchainAddress = blockchainAddress
 	bc.CreateBlock(0, b.Hash())
-	return bc
+	bc.port = port
+	return &bc
+}
+
+func (bc *Blockchain) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
+		Blocks []*Block `json:"blocks"`
+	}{
+		Blocks: bc.chain,
+	})
 }
 
 func (bc *Blockchain) Print() {
