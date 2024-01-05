@@ -4,6 +4,7 @@ import (
 	"crypto/ecdsa"
 	"crypto/sha256"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/ktruedat/goBlockchain/utils"
 	"strings"
@@ -42,9 +43,17 @@ func (bc *Blockchain) LastBlock() *Block {
 	return bc.chain[len(bc.chain)-1]
 }
 
-func (bc *Blockchain) AddTransaction(sender, recipient string, value float32) {
+func (bc *Blockchain) AddTransaction(sender, recipient string, value float32, senderPublicKey *ecdsa.PublicKey, s *utils.Signature) error {
 	t := NewTransaction(sender, recipient, value)
-	bc.transactionPool = append(bc.transactionPool, t)
+	if sender == MINING_SENDER {
+		bc.transactionPool = append(bc.transactionPool, t)
+		return nil
+	}
+	if bc.VerifyTransactionSignature(senderPublicKey, s, t) {
+		bc.transactionPool = append(bc.transactionPool, t)
+		return nil
+	}
+	return errors.New("verify transaction signature unsuccessful")
 }
 
 func (bc *Blockchain) VerifyTransactionSignature(senderPublicKey *ecdsa.PublicKey, s *utils.Signature, t *Transaction) bool {
