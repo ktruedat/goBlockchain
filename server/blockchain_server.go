@@ -49,6 +49,6 @@ func (bcs *BlockchainServer) GetChain(w http.ResponseWriter, req *http.Request) 
 }
 
 func (bcs *BlockchainServer) Run() {
-	http.HandleFunc("/", HelloWorld)
+	http.HandleFunc("/", bcs.GetChain)
 	log.Fatal(http.ListenAndServe("0.0.0.0:"+strconv.Itoa(int(bcs.Port())), nil))
 }
