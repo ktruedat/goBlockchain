@@ -3,8 +3,11 @@ package main
 import (
 	"log"
 	"net/http"
+	"path"
 	"text/template"
 )
+
+const templateDir = "wallet_server/templates"
 
 type WalletServer struct {
 	port    uint16
@@ -26,7 +29,7 @@ func (ws *WalletServer) Gateway() string {
 func (ws *WalletServer) Index(w http.ResponseWriter, req *http.Request) {
 	switch req.Method {
 	case http.MethodGet:
-		t, _ := template.ParseFiles("wallet_server/templates/index.html")
+		t, _ := template.ParseFiles(path.Join(templateDir, "index.html"))
 		t.Execute(w, "")
 	default:
 		log.Println("Invalid HTTP method")
