@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"path"
+	"strconv"
 	"text/template"
 )
 
@@ -34,4 +35,9 @@ func (ws *WalletServer) Index(w http.ResponseWriter, req *http.Request) {
 	default:
 		log.Println("Invalid HTTP method")
 	}
+}
+
+func (ws *WalletServer) Run() {
+	http.HandleFunc("/", ws.Index)
+	log.Fatal(http.ListenAndServe("0.0.0.0:"+strconv.Itoa(int(ws.Port())), nil))
 }
