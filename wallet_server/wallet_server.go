@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"github.com/ktruedat/goBlockchain/wallet"
 	"io"
 	"log"
@@ -51,6 +52,27 @@ func (ws *WalletServer) CreateWallet(w http.ResponseWriter, req *http.Request) {
 		log.Println("Invalid HTTP method")
 	}
 
+}
+
+func (ws *WalletServer) CreateTransaction(w http.ResponseWriter, req *http.Request) {
+	switch req.Method {
+	case http.MethodPost:
+		decoder := json.NewDecoder(req.Body)
+		var t wallet.TransactionRequest
+		if err := decoder.Decode(&t); err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			log.Printf("JSON decoding unsuccessful: %v", err)
+			return
+		}
+
+		if !t.Validate() {
+			w.WriteHeader(http.StatusBadRequest)
+			log.Printf("Bad Request")
+		}
+	default:
+		w.WriteHeader(http.StatusBadRequest)
+		log.Println("Invalid HTTP method")
+	}
 }
 
 func (ws *WalletServer) Run() {

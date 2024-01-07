@@ -40,3 +40,22 @@ func (t *Transaction) MarshalJSON() ([]byte, error) {
 		RecipientBlockchainAddress: t.recipientBlockchainAddress,
 		Value:                      t.value})
 }
+
+type TransactionRequest struct {
+	SenderPrivateKey           string `json:"senderPrivateKey"`
+	SenderPublicKey            string `json:"senderPublicKey"`
+	SenderBlockchainAddress    string `json:"senderBlockchainAddress"`
+	RecipientBlockchainAddress string `json:"recipientBlockchainAddress"`
+	Value                      string `json:"value"`
+}
+
+func (tr *TransactionRequest) Validate() bool {
+	if tr.SenderPrivateKey == "" ||
+		tr.SenderPublicKey == "" ||
+		tr.SenderBlockchainAddress == "" ||
+		tr.RecipientBlockchainAddress == "" ||
+		tr.Value == "" {
+		return false
+	}
+	return true
+}
