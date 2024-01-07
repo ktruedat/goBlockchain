@@ -1,6 +1,8 @@
 package main
 
 import (
+	"github.com/ktruedat/goBlockchain/wallet"
+	"io"
 	"log"
 	"net/http"
 	"path"
@@ -37,7 +39,23 @@ func (ws *WalletServer) Index(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
+func (ws *WalletServer) CreateWallet(w http.ResponseWriter, req *http.Request) {
+	switch req.Method {
+	case http.MethodPost:
+		w.Header().Add("Content-Type", "application/json")
+		createdWallet := wallet.NewWallet()
+		m, _ := createdWallet.MarshalJSON()
+		io.WriteString(w, string(m[:]))
+	default:
+		w.WriteHeader(http.StatusBadRequest)
+		log.Println("Invalid HTTP method")
+	}
+
+}
+
 func (ws *WalletServer) Run() {
 	http.HandleFunc("/", ws.Index)
+	http.HandleFunc("/wallet", ws.CreateWallet)
+
 	log.Fatal(http.ListenAndServe("0.0.0.0:"+strconv.Itoa(int(ws.Port())), nil))
 }
