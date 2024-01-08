@@ -31,6 +31,8 @@ func StringToBigIntTuple(s string) (big.Int, big.Int) {
 	return bix, biy
 }
 
+// PublicKeyFromString will call StringToBigIntTuple to get the X and Y values needed for returning
+// a new Public Key
 func PublicKeyFromString(s string) *ecdsa.PublicKey {
 	x, y := StringToBigIntTuple(s)
 	return &ecdsa.PublicKey{Curve: elliptic.P256(), X: &x, Y: &y}
