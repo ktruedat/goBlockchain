@@ -69,6 +69,7 @@ func (ws *WalletServer) CreateTransaction(w http.ResponseWriter, req *http.Reque
 			w.WriteHeader(http.StatusBadRequest)
 			log.Printf("Bad Request")
 		}
+
 	default:
 		w.WriteHeader(http.StatusBadRequest)
 		log.Println("Invalid HTTP method")
