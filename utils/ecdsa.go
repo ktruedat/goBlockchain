@@ -37,3 +37,13 @@ func PublicKeyFromString(s string) *ecdsa.PublicKey {
 	x, y := StringToBigIntTuple(s)
 	return &ecdsa.PublicKey{Curve: elliptic.P256(), X: &x, Y: &y}
 }
+
+func PrivateKeyFromString(s string, pubKey *ecdsa.PublicKey) *ecdsa.PrivateKey {
+	b, _ := hex.DecodeString(s[:])
+	var bi big.Int
+	_ = bi.SetBytes(b)
+	return &ecdsa.PrivateKey{
+		PublicKey: *pubKey,
+		D:         &bi,
+	}
+}
