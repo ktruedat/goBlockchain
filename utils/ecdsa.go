@@ -14,12 +14,17 @@ type Signature struct {
 }
 
 func (s *Signature) String() string {
-	return fmt.Sprintf("%x%x", s.R, s.S)
+	return fmt.Sprintf("%064x%064x", s.R, s.S)
 }
 
-// StringToBigIntTuple will take the hexadecimal string representing the X and Y of a
+func SignatureFromString(s string) *Signature {
+	x, y := stringToBigIntTuple(s)
+	return &Signature{&x, &y}
+}
+
+// stringToBigIntTuple will take the hexadecimal string representing the X and Y of a
 // public key and return them in a big Int form separately
-func StringToBigIntTuple(s string) (big.Int, big.Int) {
+func stringToBigIntTuple(s string) (big.Int, big.Int) {
 	bx, _ := hex.DecodeString(s[:64])
 	by, _ := hex.DecodeString(s[64:])
 
@@ -34,7 +39,7 @@ func StringToBigIntTuple(s string) (big.Int, big.Int) {
 // PublicKeyFromString will call StringToBigIntTuple to get the X and Y values needed for returning
 // a new Public Key
 func PublicKeyFromString(s string) *ecdsa.PublicKey {
-	x, y := StringToBigIntTuple(s)
+	x, y := stringToBigIntTuple(s)
 	return &ecdsa.PublicKey{Curve: elliptic.P256(), X: &x, Y: &y}
 }
 
