@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"crypto/ecdsa"
+	"crypto/elliptic"
 	"encoding/hex"
 	"fmt"
 	"math/big"
@@ -27,4 +29,9 @@ func StringToBigIntTuple(s string) (big.Int, big.Int) {
 	_ = bix.SetBytes(bx)
 	_ = biy.SetBytes(by)
 	return bix, biy
+}
+
+func PublicKeyFromString(s string) *ecdsa.PublicKey {
+	x, y := StringToBigIntTuple(s)
+	return &ecdsa.PublicKey{Curve: elliptic.P256(), X: &x, Y: &y}
 }
