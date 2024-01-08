@@ -2,6 +2,8 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
+	"github.com/ktruedat/goBlockchain/utils"
 	"github.com/ktruedat/goBlockchain/wallet"
 	"io"
 	"log"
@@ -68,11 +70,25 @@ func (ws *WalletServer) CreateTransaction(w http.ResponseWriter, req *http.Reque
 		if !t.Validate() {
 			w.WriteHeader(http.StatusBadRequest)
 			log.Printf("Bad Request")
+			return
 		}
+		publicKey := utils.PublicKeyFromString(t.SenderPublicKey)
+		privateKey := utils.PrivateKeyFromString(t.SenderPrivateKey, publicKey)
+		value, err := strconv.ParseFloat(t.Value, 32)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			log.Println("Parse error")
+			return
+		}
+		value32 := float32(value)
+		fmt.Println(publicKey)
+		fmt.Println(privateKey)
+		fmt.Println("%.1f\n", value32)
 
 	default:
 		w.WriteHeader(http.StatusBadRequest)
 		log.Println("Invalid HTTP method")
+		return
 	}
 }
 
