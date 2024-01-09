@@ -4,8 +4,52 @@ import (
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 )
+
+type Blockchain struct {
+	transactionPool   []*Transaction
+	chain             []*Block
+	blockchainAddress string
+	port              uint16
+}
+
+func NewBlockchain(blockchainAddress string, port uint16) *Blockchain {
+	var b Block
+	var bc Blockchain
+	bc.blockchainAddress = blockchainAddress
+	bc.CreateBlock(0, b.Hash())
+	bc.port = port
+	return &bc
+}
+
+func (bc *Blockchain) Print() {
+	fmt.Printf("%s\n", strings.Repeat("*", 25))
+	for i, block := range bc.chain {
+		fmt.Printf("%s chain %d %s\n", strings.Repeat("=", 25), i, strings.Repeat("=", 25))
+		block.Print()
+	}
+	fmt.Printf("%s\n", strings.Repeat("*", 25))
+}
+
+func (bc *Blockchain) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
+		Blocks []*Block `json:"blocks"`
+	}{
+		Blocks: bc.chain,
+	})
+}
+
+func (bc *Blockchain) CreateBlock(nonce int, previousHash [32]byte) *Block {
+	b := NewBlock(nonce, previousHash, bc.transactionPool)
+	bc.chain = append(bc.chain, b)
+	return b
+}
+
+func (bc *Blockchain) LastBlock() *Block {
+	return bc.chain[len(bc.chain)-1]
+}
 
 type Block struct {
 	nonce        int

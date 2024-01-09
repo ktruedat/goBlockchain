@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/ktruedat/goBlockchain/blockchain"
-	"github.com/ktruedat/goBlockchain/wallet"
+	"github.com/ktruedat/goBlockchain/internals/blockchain"
+	"github.com/ktruedat/goBlockchain/internals/wallet"
 	"io"
 	"log"
 	"net/http"

@@ -2,8 +2,8 @@ package main
 
 import (
 	"encoding/json"
+	wallet2 "github.com/ktruedat/goBlockchain/internals/wallet"
 	"github.com/ktruedat/goBlockchain/utils"
-	"github.com/ktruedat/goBlockchain/wallet"
 	"io"
 	"log"
 	"net/http"
@@ -45,7 +45,7 @@ func (ws *WalletServer) CreateWallet(w http.ResponseWriter, req *http.Request) {
 	switch req.Method {
 	case http.MethodPost:
 		w.Header().Add("Content-Type", "application/json")
-		createdWallet := wallet.NewWallet()
+		createdWallet := wallet2.NewWallet()
 		m, _ := createdWallet.MarshalJSON()
 		io.WriteString(w, string(m[:]))
 	default:
@@ -59,7 +59,7 @@ func (ws *WalletServer) CreateTransaction(w http.ResponseWriter, req *http.Reque
 	switch req.Method {
 	case http.MethodPost:
 		decoder := json.NewDecoder(req.Body)
-		var t wallet.TransactionRequest
+		var t wallet2.TransactionRequest
 		if err := decoder.Decode(&t); err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			log.Printf("JSON decoding unsuccessful: %v", err)

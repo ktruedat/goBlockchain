@@ -2,7 +2,7 @@ package utils
 
 import (
 	"errors"
-	"github.com/ktruedat/goBlockchain/blockchain"
+	"github.com/ktruedat/goBlockchain/internals/blockchain"
 	"reflect"
 )
 

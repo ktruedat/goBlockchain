@@ -7,55 +7,28 @@ import (
 	"errors"
 	"fmt"
 	"github.com/ktruedat/goBlockchain/utils"
+	"log"
 	"strings"
 )
 
-type Blockchain struct {
-	transactionPool   []*Transaction
-	chain             []*Block
-	blockchainAddress string
-	port              uint16
-}
+const (
+	MiningDifficulty = 3
+	MiningSender     = "THE_BLOCKCHAIN"
+	MiningReward     = 1.0
+)
 
-func NewBlockchain(blockchainAddress string, port uint16) *Blockchain {
-	var b Block
-	var bc Blockchain
-	bc.blockchainAddress = blockchainAddress
-	bc.CreateBlock(0, b.Hash())
-	bc.port = port
-	return &bc
-}
-
-func (bc *Blockchain) Print() {
-	fmt.Printf("%s\n", strings.Repeat("*", 25))
-	for i, block := range bc.chain {
-		fmt.Printf("%s chain %d %s\n", strings.Repeat("=", 25), i, strings.Repeat("=", 25))
-		block.Print()
-	}
-	fmt.Printf("%s\n", strings.Repeat("*", 25))
-}
-
-func (bc *Blockchain) MarshalJSON() ([]byte, error) {
-	return json.Marshal(struct {
-		Blocks []*Block `json:"blocks"`
-	}{
-		Blocks: bc.chain,
-	})
-}
-
-func (bc *Blockchain) CreateBlock(nonce int, previousHash [32]byte) *Block {
-	b := NewBlock(nonce, previousHash, bc.transactionPool)
-	bc.chain = append(bc.chain, b)
-	return b
-}
-
-func (bc *Blockchain) LastBlock() *Block {
-	return bc.chain[len(bc.chain)-1]
+func (bc *Blockchain) Mining() bool {
+	bc.AddTransaction(MiningSender, bc.blockchainAddress, MiningReward, nil, nil)
+	nonce := bc.proofOfWork()
+	previousHash := bc.LastBlock().Hash()
+	bc.CreateBlock(nonce, previousHash)
+	log.Println("mining completed successfully")
+	return true
 }
 
 func (bc *Blockchain) AddTransaction(sender, recipient string, value float32, senderPublicKey *ecdsa.PublicKey, s *utils.Signature) error {
 	t := NewTransaction(sender, recipient, value)
-	if sender == MINING_SENDER {
+	if sender == MiningSender {
 		bc.transactionPool = append(bc.transactionPool, t)
 		return nil
 	}
@@ -97,4 +70,21 @@ func (bc *Blockchain) copyTransactionPool() []*Transaction {
 		transactions = append(transactions, t)
 	}
 	return transactions
+}
+
+func (bc *Blockchain) proofOfWork() int {
+	transactions := bc.copyTransactionPool()
+	previousHash := bc.LastBlock().Hash()
+	nonce := 0
+	for !bc.validProof(MiningDifficulty, nonce, previousHash, transactions) {
+		nonce += 1
+	}
+	return nonce
+}
+
+func (bc *Blockchain) validProof(difficulty, nonce int, previousHash [32]byte, transactions []*Transaction) bool {
+	zeros := strings.Repeat("0", difficulty)
+	guessBlock := NewBlock(nonce, previousHash, transactions)
+	guessHashStr := fmt.Sprintf("%x", guessBlock.Hash())
+	return guessHashStr[:difficulty] == zeros
 }
