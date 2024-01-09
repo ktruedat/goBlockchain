@@ -26,14 +26,6 @@ func NewBlockchain(blockchainAddress string, port uint16) *Blockchain {
 	return &bc
 }
 
-func (bc *Blockchain) MarshalJSON() ([]byte, error) {
-	return json.Marshal(struct {
-		Blocks []*Block `json:"blocks"`
-	}{
-		Blocks: bc.chain,
-	})
-}
-
 func (bc *Blockchain) Print() {
 	fmt.Printf("%s\n", strings.Repeat("*", 25))
 	for i, block := range bc.chain {
@@ -41,6 +33,14 @@ func (bc *Blockchain) Print() {
 		block.Print()
 	}
 	fmt.Printf("%s\n", strings.Repeat("*", 25))
+}
+
+func (bc *Blockchain) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
+		Blocks []*Block `json:"blocks"`
+	}{
+		Blocks: bc.chain,
+	})
 }
 
 func (bc *Blockchain) CreateBlock(nonce int, previousHash [32]byte) *Block {
@@ -59,8 +59,8 @@ func (bc *Blockchain) AddTransaction(sender, recipient string, value float32, se
 		bc.transactionPool = append(bc.transactionPool, t)
 		return nil
 	}
-	if bc.VerifyTransactionSignature(senderPublicKey, s, t) {
-		if bc.CalculateTotalAmount(sender) < value {
+	if bc.verifyTransactionSignature(senderPublicKey, s, t) {
+		if bc.calculateTotalAmount(sender) < value {
 			return errors.New("failed to send cryptocurrency: not enough balance in wallet")
 		}
 		bc.transactionPool = append(bc.transactionPool, t)
@@ -69,21 +69,13 @@ func (bc *Blockchain) AddTransaction(sender, recipient string, value float32, se
 	return errors.New("verify transaction signature unsuccessful")
 }
 
-func (bc *Blockchain) VerifyTransactionSignature(senderPublicKey *ecdsa.PublicKey, s *utils.Signature, t *Transaction) bool {
+func (bc *Blockchain) verifyTransactionSignature(senderPublicKey *ecdsa.PublicKey, s *utils.Signature, t *Transaction) bool {
 	m, _ := json.Marshal(t)
 	h := sha256.Sum256(m[:])
 	return ecdsa.Verify(senderPublicKey, h[:], s.R, s.S)
 }
 
-func (bc *Blockchain) CopyTransactionPool() []*Transaction {
-	transactions := make([]*Transaction, 0)
-	for _, t := range bc.transactionPool {
-		transactions = append(transactions, t)
-	}
-	return transactions
-}
-
-func (bc *Blockchain) CalculateTotalAmount(blockchainAddr string) float32 {
+func (bc *Blockchain) calculateTotalAmount(blockchainAddr string) float32 {
 	var totalAmount float32 = 0.0
 	for _, b := range bc.chain {
 		for _, t := range b.transactions {
@@ -97,4 +89,12 @@ func (bc *Blockchain) CalculateTotalAmount(blockchainAddr string) float32 {
 		}
 	}
 	return totalAmount
+}
+
+func (bc *Blockchain) copyTransactionPool() []*Transaction {
+	transactions := make([]*Transaction, 0)
+	for _, t := range bc.transactionPool {
+		transactions = append(transactions, t)
+	}
+	return transactions
 }

@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/ktruedat/goBlockchain/utils"
 	"github.com/ktruedat/goBlockchain/wallet"
 	"io"
@@ -81,9 +80,7 @@ func (ws *WalletServer) CreateTransaction(w http.ResponseWriter, req *http.Reque
 			return
 		}
 		value32 := float32(value)
-		fmt.Println(publicKey)
-		fmt.Println(privateKey)
-		fmt.Println("%.1f\n", value32)
+		w.Header().Add("Content-Type", "application/json")
 
 	default:
 		w.WriteHeader(http.StatusBadRequest)

@@ -22,7 +22,7 @@ func (bc *Blockchain) Mining() bool {
 }
 
 func (bc *Blockchain) proofOfWork() int {
-	transactions := bc.CopyTransactionPool()
+	transactions := bc.copyTransactionPool()
 	previousHash := bc.LastBlock().Hash()
 	nonce := 0
 	for !bc.validProof(MiningDifficulty, nonce, previousHash, transactions) {
