@@ -17,6 +17,7 @@ const (
 	MiningReward     = 1.0
 )
 
+// Mining section
 func (bc *Blockchain) Mining() bool {
 	bc.AddTransaction(MiningSender, bc.blockchainAddress, MiningReward, nil, nil)
 	nonce := bc.proofOfWork()
